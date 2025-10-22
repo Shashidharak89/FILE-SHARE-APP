@@ -1,17 +1,32 @@
 "use client";
 import { useState } from "react";
-import UploadForm from "./components/UploadForm";
+import UploadForm from "./components/UploadFormNew";
 import FileList from "./components/FileList";
 
 export default function Home() {
   const [refresh, setRefresh] = useState(false);
 
   return (
-    <main style={{ padding: "40px", fontFamily: "Arial, sans-serif", backgroundColor: "#ffffff" }}>
-      <h1 style={{ color: "#FF6600", marginBottom: "30px" }}>LAN File Share</h1>
+    <section>
+      <div className="hero container">
+        <div>
+          <h1>Share files on your LAN — instantly</h1>
+          <p className="muted">Drag & drop or select files to share across devices on the same network. Lightweight and private.</p>
+        </div>
+        <div className="small muted">Drop files under C:/share to make them available</div>
+      </div>
 
-      <UploadForm onUploadSuccess={() => setRefresh(!refresh)} />
-      <FileList key={refresh} />
-    </main>
+      <div className="container">
+        <div className="grid grid-2" style={{ alignItems: 'start' }}>
+          <div className="panel" style={{ minHeight: 220 }}>
+            <UploadForm onUploadSuccess={() => setRefresh(!refresh)} />
+          </div>
+
+          <aside className="panel">
+            <FileList key={String(refresh)} />
+          </aside>
+        </div>
+      </div>
+    </section>
   );
 }

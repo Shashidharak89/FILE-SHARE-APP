@@ -18,36 +18,31 @@ export default function FileList() {
     fetchFiles();
   }, []);
 
+  const handleDownload = (name) => {
+    // open the download route in a new tab
+    window.open(`/api/download/${encodeURIComponent(name)}`);
+  };
+
   return (
-    <div style={{
-      padding: "20px",
-      border: "1px solid #FFA500",
-      borderRadius: "10px",
-      backgroundColor: "#FFF8F0"
-    }}>
-      <h2 style={{ color: "#FF6600", marginBottom: "12px" }}>Files in C:/share</h2>
-      <button
-        onClick={fetchFiles}
-        style={{
-          backgroundColor: "#FF6600",
-          color: "#fff",
-          border: "none",
-          padding: "8px 15px",
-          borderRadius: "5px",
-          marginBottom: "10px",
-          cursor: "pointer"
-        }}
-      >
-        Refresh
-      </button>
+    <div>
+      <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>Files in C:/share</h3>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+        <button className="btn" onClick={fetchFiles}>Refresh</button>
+      </div>
 
       {files.length === 0 ? (
-        <p>No files found</p>
+        <p className="muted">No files found</p>
       ) : (
-        <ul>
+        <ul className="list">
           {files.map((file, idx) => (
-            <li key={idx} style={{ padding: "5px 0", color: "#333" }}>
-              {file}
+            <li key={idx} className="list-item">
+              <div>
+                <div className="filename">{file}</div>
+                <div className="file-meta">{/* placeholder for size/date */}</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn" onClick={() => handleDownload(file)}>Download</button>
+              </div>
             </li>
           ))}
         </ul>
