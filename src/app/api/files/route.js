@@ -1,36 +1,16 @@
-// app/api/files/route.js
+import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const UPLOAD_DIR = "C:/share";
+const uploadDir = "C:/share";
 
 export async function GET() {
   try {
-    if (!fs.existsSync(UPLOAD_DIR)) {
-      return new Response(JSON.stringify({ files: [] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
+    const files = fs.readdirSync(uploadDir);
 
-    const names = await fs.promises.readdir(UPLOAD_DIR);
-    const files = await Promise.all(
-      names.map(async (name) => {
-        const full = path.join(UPLOAD_DIR, name);
-        const stat = await fs.promises.stat(full);
-        return { name, size: stat.size, mtime: stat.mtime };
-      })
-    );
-
-    return new Response(JSON.stringify({ files }), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+    // Return file names
+    return NextResponse.json({ files });
   } catch (err) {
-    console.error("List files error:", err);
-    return new Response(JSON.stringify({ files: [], error: String(err) }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
