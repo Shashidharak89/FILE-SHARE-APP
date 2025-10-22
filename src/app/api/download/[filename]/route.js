@@ -3,13 +3,12 @@ import path from "path";
 
 const UPLOAD_DIR = "C:/share";
 
-export async function GET(req, { params }) {
+export async function GET(request, { params }) {
   try {
-    // params.filename contains the requested file
-    const filename = params?.filename;
-    if (!filename) {
+    if (!params || !params.filename) {
       return new Response("Missing file name", { status: 400 });
     }
+    const filename = decodeURIComponent(params.filename);
 
     // prevent directory traversal
     const safeName = path.basename(filename);
