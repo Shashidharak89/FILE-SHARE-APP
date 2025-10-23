@@ -1,40 +1,47 @@
 import fs from "fs";
 import path from "path";
 
-// Try to use C:/share, fallback to project root if not accessible
-const PRIMARY_UPLOAD_DIR = "C:/share";
-const FALLBACK_UPLOAD_DIR = path.join(process.cwd(), 'share');
-
-// Check if we can access C:/share
-let UPLOAD_DIR = PRIMARY_UPLOAD_DIR;
-try {
-    // Try to access or create C:/share
-    if (!fs.existsSync(PRIMARY_UPLOAD_DIR)) {
-        fs.mkdirSync(PRIMARY_UPLOAD_DIR, { recursive: true });
-    }
-    // Test write access
-    fs.accessSync(PRIMARY_UPLOAD_DIR, fs.constants.W_OK);
-} catch (error) {
-    console.log('Cannot access C:/share, using fallback location:', FALLBACK_UPLOAD_DIR);
-    UPLOAD_DIR = FALLBACK_UPLOAD_DIR;
-    if (!fs.existsSync(FALLBACK_UPLOAD_DIR)) {
-        fs.mkdirSync(FALLBACK_UPLOAD_DIR, { recursive: true });
-    }
-}
+// Set the exact upload directory path
+const UPLOAD_DIR = "C:\\share";
 
 export async function GET(request, { params }) {
   try {
-    console.log('Download request received for:', params?.filename);
+    // Log the incoming request details
+    console.log('Download request params:', params);
     
-    if (!params?.filename) {
-      console.error('Missing filename parameter');
-      return new Response("Missing filename parameter", { status: 400 });
+    // Check if filename exists in params
+    if (!params || typeof params.filename === 'undefined') {
+      console.error('Missing filename in params');
+      return new Response("Missing filename in request parameters", { status: 400 });
     }
 
-    // Decode and sanitize the filename
-    const filename = decodeURIComponent(params.filename);
-    const safeName = path.basename(filename);
-    const filePath = path.join(UPLOAD_DIR, safeName);
+    // Get and validate filename
+    const filename = params.filename;
+    if (!filename || filename.trim() === '') {
+      console.error('Empty filename provided');
+      return new Response("Filename cannot be empty", { status: 400 });
+    }
+
+    // Decode and get the file path
+    const decodedFilename = decodeURIComponent(filename);
+    const filePath = path.join(UPLOAD_DIR, decodedFilename);
+    
+    console.log('Attempting to access file at:', filePath);
+
+    // Check if file exists
+    try {
+      const fileExists = fs.existsSync(filePath);
+      if (!fileExists) {
+        console.error('File not found:', filePath);
+        return new Response("File not found", { status: 404 });
+      }
+
+      // Additional check to verify file is readable
+      fs.accessSync(filePath, fs.constants.R_OK);
+    } catch (error) {
+      console.error('Error accessing file:', error);
+      return new Response("Error accessing file", { status: 500 });
+    }
 
     console.log('Attempting to download file:', filePath);
 
@@ -48,10 +55,10 @@ export async function GET(request, { params }) {
     const stat = fs.statSync(filePath);
     const fileBuffer = fs.readFileSync(filePath);
 
-    console.log('File stats:', {
+    console.log('File ready for download:', {
+      name: decodedFilename,
       size: stat.size,
-      path: filePath,
-      exists: fs.existsSync(filePath)
+      path: filePath
     });
 
     // Simple MIME type detection

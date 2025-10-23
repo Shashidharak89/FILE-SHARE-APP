@@ -28,56 +28,73 @@ export default function FileList() {
 
   const handleDownload = async (name) => {
     try {
-      console.log('Starting download for:', name);
+      // Validate filename
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        throw new Error('Invalid file name');
+      }
+
+      // Clean and encode the filename
+      const cleanName = name.trim();
+      const encodedName = encodeURIComponent(cleanName);
       
-      const encodedFilename = encodeURIComponent(name);
-      const downloadUrl = `/api/download/${encodedFilename}`;
-      
-      console.log('Fetching from URL:', downloadUrl);
-      
-      // Use fetch with specific headers
-      const response = await fetch(downloadUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/octet-stream',
-        },
+      console.log('Initiating download:', {
+        originalName: name,
+        cleanName: cleanName,
+        encodedName: encodedName
       });
+
+      // Make the request
+      const downloadUrl = `/api/download/${encodedName}`;
+      console.log('Requesting from:', downloadUrl);
       
-      // Log response status and headers
+      const response = await fetch(downloadUrl);
+      
       console.log('Response status:', response.status);
-      console.log('Response headers:', [...response.headers.entries()]);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Download failed:', errorText);
-        throw new Error(`Download failed: ${response.status} ${errorText}`);
+        console.error('Download failed:', {
+          status: response.status,
+          error: errorText
+        });
+        throw new Error(errorText || `Download failed (${response.status})`);
       }
       
       // Get the blob from the response
       const blob = await response.blob();
-      console.log('Received blob:', {
-        size: blob.size,
-        type: blob.type
+      console.log('Download successful:', { 
+        size: blob.size, 
+        type: blob.type,
+        name: cleanName 
       });
-      
-      // Trigger download using blob
+
+      // Create download link
+      // Create and trigger download
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
+      link.style.display = 'none';
       link.href = url;
-      link.download = name;
+      link.download = cleanName;
+      
+      console.log('Triggering download with:', {
+        url: link.href,
+        filename: link.download
+      });
+      
+      // Add to document and click
       document.body.appendChild(link);
       link.click();
       
       // Clean up
+      document.body.removeChild(link);
       setTimeout(() => {
-        document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
+        console.log('Download cleanup completed');
       }, 1000);
-      
-      console.log('Download initiated successfully');
     } catch (err) {
       console.error('Download error:', err);
-      alert(`Download failed: ${err.message}`);
+      alert('Failed to download file: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -101,12 +118,13 @@ export default function FileList() {
           {files.map((file, idx) => (
             <li key={idx} className="list-item">
               <div>
-                <div className="filename">{file}</div>
+                <div className="filename" title={file}>{file}</div>
                 <div className="file-meta">{/* placeholder for size/date */}</div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button 
-                  className="btn" 
+                  className="btn"
+                  disabled={!file}
                   onClick={() => handleDownload(file)}
                 >
                   Download
