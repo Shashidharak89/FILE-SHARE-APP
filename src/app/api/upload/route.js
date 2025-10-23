@@ -1,15 +1,11 @@
 import fs from "fs";
 import path from "path";
 
-// Set the exact upload directory path
-const UPLOAD_DIR = "C:\\share";
+import { getStoragePath } from '../../lib/storage';
 
 export async function POST(req) {
   try {
-    // Create share directory if it doesn't exist
-    if (!fs.existsSync(UPLOAD_DIR)) {
-      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    }
+    const UPLOAD_DIR = getStoragePath(req.headers);
 
     const formData = await req.formData();
     const files = formData.getAll("files");

@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
-
-// Set the exact upload directory path
-const UPLOAD_DIR = "C:\\share";
+import { getStoragePath } from '../../../lib/storage';
 
 export async function GET(request, { params }) {
   try {
@@ -21,6 +19,9 @@ export async function GET(request, { params }) {
       console.error('Empty filename provided');
       return new Response("Filename cannot be empty", { status: 400 });
     }
+
+    // Get storage path from request headers
+    const UPLOAD_DIR = getStoragePath(request.headers);
 
     // Decode and get the file path
     const decodedFilename = decodeURIComponent(filename);

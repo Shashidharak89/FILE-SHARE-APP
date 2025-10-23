@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getStoragePath } from '../../lib/storage';
 
-// Set the exact upload directory path
-const UPLOAD_DIR = "C:\\share";
-
-export async function GET() {
+export async function GET(request) {
   try {
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(UPLOAD_DIR)) {
-      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    }
-    
+    const UPLOAD_DIR = getStoragePath(request.headers);
     const files = fs.readdirSync(UPLOAD_DIR);
 
     // Return file names

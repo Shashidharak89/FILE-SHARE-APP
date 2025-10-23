@@ -1,16 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
 
+import PathSettings from './PathSettings';
+
 export default function FileList() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [storagePath, setStoragePath] = useState('');
+
+  useEffect(() => {
+    // Load saved path from localStorage
+    const savedPath = localStorage.getItem('fileshare_path') || 'C:\\share';
+    setStoragePath(savedPath);
+  }, []);
 
   const fetchFiles = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/files");
+      const res = await fetch("/api/files", {
+        headers: {
+          'x-storage-path': storagePath
+        }
+      });
       if (!res.ok) throw new Error('Failed to fetch files');
       const data = await res.json();
       setFiles(data.files || []);
@@ -100,7 +113,8 @@ export default function FileList() {
 
   return (
     <div>
-      <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>Files in C:/share</h3>
+      <PathSettings />
+      <h3 style={{ color: 'var(--accent)', marginBottom: 8, marginTop: 16 }}>Files in Storage</h3>
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
         <button className="btn" onClick={fetchFiles} disabled={loading}>
           {loading ? 'Loading...' : 'Refresh'}
