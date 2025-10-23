@@ -2,6 +2,7 @@
 import { useState } from "react";
 import UploadForm from "./components/UploadFormNew";
 import FileList from "./components/FileList";
+import SystemFileList from "./components/SystemFileList";
 
 export default function Home() {
   const [refresh, setRefresh] = useState(false);
@@ -25,6 +26,11 @@ export default function Home() {
           <aside className="panel">
             <FileList key={String(refresh)} />
           </aside>
+        </div>
+
+        {/* System Files Section */}
+        <div className="mt-8">
+          <SystemFileList />
         </div>
       </div>
     </section>
