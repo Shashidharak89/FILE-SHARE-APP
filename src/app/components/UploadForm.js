@@ -1,9 +1,25 @@
 "use client";
 import { useState, useRef } from "react";
 
+// Triangle Progress component
+const TriangleProgress = ({ progress }) => {
+  return (
+    <div className="triangle-progress-container">
+      <div 
+        className="triangle-progress" 
+        style={{ 
+          '--progress': `${progress}%`
+        }}
+      />
+      <div className="progress-text">{progress}%</div>
+    </div>
+  );
+};
+
 export default function UploadForm({ onUploadSuccess }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const inputRef = useRef(null);
 
   const onFiles = (files) => {
@@ -22,12 +38,29 @@ export default function UploadForm({ onUploadSuccess }) {
     }
 
     setLoading(true);
+    setUploadProgress(0);
     const formData = new FormData();
     selectedFiles.forEach((f) => formData.append("files", f));
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentComplete);
+        }
+      };
+
+      const response = await new Promise((resolve, reject) => {
+        xhr.onload = () => resolve(xhr.response);
+        xhr.onerror = () => reject(xhr.statusText);
+        xhr.open('POST', '/api/upload');
+        xhr.responseType = 'json';
+        xhr.send(formData);
+      });
+
+      const data = response;
 
       if (data.ok) {
         alert("Uploaded: " + (data.saved || []).join(", "));
@@ -42,12 +75,20 @@ export default function UploadForm({ onUploadSuccess }) {
       alert("Upload error");
     } finally {
       setLoading(false);
+      setTimeout(() => setUploadProgress(0), 1000); // Reset progress after 1 second
     }
   };
 
   return (
     <div>
       <h3 style={{ color: "#FF6600", marginBottom: 8 }}>Upload files</h3>
+
+      {loading && (
+        <div className="upload-status">
+          <div className="upload-status-text">Uploading files...</div>
+          <TriangleProgress progress={uploadProgress} />
+        </div>
+      )}
 
       <div
         className="upload-drop"

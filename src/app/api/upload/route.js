@@ -1,10 +1,13 @@
 import fs from "fs";
 import path from "path";
 
-const UPLOAD_DIR = "C:/share";
+// Get the project root directory (two levels up from the API route)
+const PROJECT_ROOT = path.join(process.cwd());
+const UPLOAD_DIR = path.join(PROJECT_ROOT, 'share');
 
 export async function POST(req) {
   try {
+    // Create share directory if it doesn't exist
     if (!fs.existsSync(UPLOAD_DIR)) {
       fs.mkdirSync(UPLOAD_DIR, { recursive: true });
     }

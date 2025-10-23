@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-const UPLOAD_DIR = "C:/share";
+// Get the project root directory
+const PROJECT_ROOT = path.join(process.cwd());
+const UPLOAD_DIR = path.join(PROJECT_ROOT, 'share');
 
 export async function GET(request, { params }) {
   try {
