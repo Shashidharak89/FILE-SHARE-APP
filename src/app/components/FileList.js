@@ -28,25 +28,56 @@ export default function FileList() {
 
   const handleDownload = async (name) => {
     try {
+      console.log('Starting download for:', name);
+      
       const encodedFilename = encodeURIComponent(name);
       const downloadUrl = `/api/download/${encodedFilename}`;
       
-      // First check if file exists
-      const checkRes = await fetch(downloadUrl);
-      if (!checkRes.ok) {
-        throw new Error('File not found or unable to download');
+      console.log('Fetching from URL:', downloadUrl);
+      
+      // Use fetch with specific headers
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/octet-stream',
+        },
+      });
+      
+      // Log response status and headers
+      console.log('Response status:', response.status);
+      console.log('Response headers:', [...response.headers.entries()]);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Download failed:', errorText);
+        throw new Error(`Download failed: ${response.status} ${errorText}`);
       }
       
-      // If file exists, trigger download
+      // Get the blob from the response
+      const blob = await response.blob();
+      console.log('Received blob:', {
+        size: blob.size,
+        type: blob.type
+      });
+      
+      // Trigger download using blob
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = name; // Set the download filename
+      link.href = url;
+      link.download = name;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+      
+      console.log('Download initiated successfully');
     } catch (err) {
-      console.error(err);
-      alert('Failed to download file. Please try again.');
+      console.error('Download error:', err);
+      alert(`Download failed: ${err.message}`);
     }
   };
 
