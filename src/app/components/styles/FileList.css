@@ -1,0 +1,302 @@
+/* FileList.css */
+
+.file-list-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.file-list-container:hover {
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.12);
+}
+
+/* Title */
+.file-list-title {
+  color: #ff6b00;
+  margin-bottom: 16px;
+  margin-top: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  animation: slideDown 0.4s ease-out;
+}
+
+/* Actions */
+.file-list-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  animation: slideDown 0.5s ease-out;
+}
+
+/* Refresh Button */
+.refresh-btn {
+  background-color: #ff6b00;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: #e56000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+}
+
+.refresh-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 107, 0, 0.2);
+}
+
+.refresh-btn:disabled {
+  background-color: #ffb380;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.refresh-btn.loading .btn-content {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.btn-content {
+  display: inline-block;
+}
+
+/* Error Message */
+.error-message {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+  margin-bottom: 16px;
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #ffe5d1;
+  border-top-color: #ff6b00;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: #ff6b00;
+  font-size: 14px;
+}
+
+/* Empty State */
+.empty-state {
+  color: #999;
+  text-align: center;
+  padding: 32px;
+  font-size: 14px;
+}
+
+/* File List */
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* File Item */
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 2px solid #ffe5d1;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  animation: slideUp 0.4s ease-out backwards;
+}
+
+.file-item:hover {
+  border-color: #ff6b00;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
+}
+
+/* File Info */
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.filename {
+  color: #333;
+  font-weight: 500;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.file-item:hover .filename {
+  color: #ff6b00;
+}
+
+.file-meta {
+  color: #999;
+  font-size: 12px;
+}
+
+/* File Actions */
+.file-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+/* Download Button */
+.download-btn {
+  background-color: #fff;
+  color: #ff6b00;
+  border: 2px solid #ff6b00;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.download-btn:hover:not(:disabled) {
+  background-color: #ff6b00;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.25);
+}
+
+.download-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.download-btn:disabled {
+  border-color: #ffb380;
+  color: #ffb380;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn-icon {
+  font-size: 16px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.download-btn:hover:not(:disabled) .btn-icon {
+  transform: translateY(2px);
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .file-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .download-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

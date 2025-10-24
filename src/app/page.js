@@ -2,7 +2,7 @@
 import { useState } from "react";
 import UploadForm from "./components/UploadFormNew";
 import FileList from "./components/FileList";
-import SystemFileList from "./components/SystemFileList";
+import './styles.css';
 
 export default function Home() {
   const [refresh, setRefresh] = useState(false);
@@ -30,7 +30,7 @@ export default function Home() {
 
         {/* System Files Section */}
         <div className="mt-8">
-          <SystemFileList />
+          
         </div>
       </div>
     </section>

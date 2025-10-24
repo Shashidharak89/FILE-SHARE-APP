@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
-import PathSettings from './PathSettings';
+import './styles/FileList.css';
 
 export default function FileList() {
   const [files, setFiles] = useState([]);
@@ -30,12 +29,10 @@ export default function FileList() {
 
   const handleDownload = async (name) => {
     try {
-      // Validate filename
       if (!name || typeof name !== 'string' || name.trim() === '') {
         throw new Error('Invalid file name');
       }
 
-      // Clean and encode the filename
       const cleanName = name.trim();
       const encodedName = encodeURIComponent(cleanName);
       
@@ -45,7 +42,6 @@ export default function FileList() {
         encodedName: encodedName
       });
 
-      // Make the request
       const downloadUrl = `/api/download?filename=${encodedName}`;
       console.log('Requesting from:', downloadUrl);
       
@@ -63,7 +59,6 @@ export default function FileList() {
         throw new Error(errorText || `Download failed (${response.status})`);
       }
       
-      // Get the blob from the response
       const blob = await response.blob();
       console.log('Download successful:', { 
         size: blob.size, 
@@ -71,8 +66,6 @@ export default function FileList() {
         name: cleanName 
       });
 
-      // Create download link
-      // Create and trigger download
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.style.display = 'none';
@@ -84,11 +77,9 @@ export default function FileList() {
         filename: link.download
       });
       
-      // Add to document and click
       document.body.appendChild(link);
       link.click();
       
-      // Clean up
       document.body.removeChild(link);
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
@@ -101,35 +92,49 @@ export default function FileList() {
   };
 
   return (
-    <div>
-      <PathSettings />
-      <h3 style={{ color: 'var(--accent)', marginBottom: 8, marginTop: 16 }}>Files in Storage</h3>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-        <button className="btn" onClick={fetchFiles} disabled={loading}>
-          {loading ? 'Loading...' : 'Refresh'}
+    <div className="file-list-container">
+    
+      <h3 className="file-list-title">Files in Storage</h3>
+      <div className="file-list-actions">
+        <button 
+          className={`refresh-btn ${loading ? 'loading' : ''}`} 
+          onClick={fetchFiles} 
+          disabled={loading}
+        >
+          <span className="btn-content">
+            {loading ? 'Loading...' : 'Refresh'}
+          </span>
         </button>
       </div>
 
       {error ? (
-        <p style={{ color: 'var(--error)', marginBottom: 12 }}>{error}</p>
+        <p className="error-message fade-in">{error}</p>
       ) : loading ? (
-        <p className="muted">Loading files...</p>
+        <div className="loading-container fade-in">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Loading files...</p>
+        </div>
       ) : files.length === 0 ? (
-        <p className="muted">No files found</p>
+        <p className="empty-state fade-in">No files found</p>
       ) : (
-        <ul className="list">
+        <ul className="file-list">
           {files.map((file, idx) => (
-            <li key={idx} className="list-item">
-              <div>
+            <li 
+              key={idx} 
+              className="file-item"
+              style={{ animationDelay: `${idx * 0.05}s` }}
+            >
+              <div className="file-info">
                 <div className="filename" title={file}>{file}</div>
                 <div className="file-meta">{/* placeholder for size/date */}</div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="file-actions">
                 <button 
-                  className="btn"
+                  className="download-btn"
                   disabled={!file}
                   onClick={() => handleDownload(file)}
                 >
+                  <span className="btn-icon">↓</span>
                   Download
                 </button>
               </div>
