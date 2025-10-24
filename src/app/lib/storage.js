@@ -1,22 +1,27 @@
 import fs from 'fs';
 import path from 'path';
 
-// Get the configured storage path from headers or use default
-export function getStoragePath(headers) {
-  try {
-    const configuredPath = headers?.get('x-storage-path');
-    if (configuredPath) {
-      // Ensure the path exists
-      if (!fs.existsSync(configuredPath)) {
-        fs.mkdirSync(configuredPath, { recursive: true });
-      }
-      return configuredPath;
+export function getStoragePath() {
+    try {
+        // Get the absolute path to the project root directory (where package.json is)
+        const projectRoot = process.cwd();
+        
+        // Go one directory up and create a 'share' folder
+        const sharePath = path.join(projectRoot, '..', 'share');
+        
+        // Ensure the share directory exists
+        if (!fs.existsSync(sharePath)) {
+            fs.mkdirSync(sharePath, { recursive: true });
+        }
+        
+        // Log the path for debugging
+        console.log('Using storage path:', sharePath);
+        
+        return sharePath;
+    } catch (error) {
+        console.error('Error accessing/creating share folder:', error);
+        throw new Error('Could not access or create share folder');
     }
-  } catch (error) {
-    console.error('Error accessing configured path:', error);
-  }
-
-  // Fallback paths
   const paths = [
     process.env.STORAGE_PATH, // Allow env configuration
     'C:\\share',              // Windows default

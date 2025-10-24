@@ -1,39 +1,50 @@
-// app/api/download/route.js
-import fs from "fs";
-import path from "path";
+import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
+import { getStoragePath } from '@/app/lib/storage';
 
-const UPLOAD_DIR = "C:/share";
+export async function GET(request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const filename = searchParams.get('filename');
+        
+        if (!filename) {
+            return NextResponse.json(
+                { error: 'Filename is required' }, 
+                { status: 400 }
+            );
+        }
 
-export async function GET(req) {
-  try {
-    const url = new URL(req.url);
-    const name = url.searchParams.get("name");
-    if (!name) {
-      return new Response("Missing file name", { status: 400 });
+        const storagePath = await getStoragePath();
+        const filePath = path.join(storagePath, filename);
+
+        let stat;
+        try {
+            stat = await fs.stat(filePath);
+        } catch {
+            return NextResponse.json(
+                { error: 'File not found' }, 
+                { status: 404 }
+            );
+        }
+
+        const fileBuffer = await fs.readFile(filePath);
+
+        const headers = new Headers();
+        headers.set('Content-Type', 'application/octet-stream');
+        headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+        headers.set('Content-Length', stat.size.toString());
+
+        return new NextResponse(fileBuffer, {
+            status: 200,
+            headers
+        });
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        return NextResponse.json(
+            { error: 'Failed to download file' }, 
+            { status: 500 }
+        );
     }
-
-    // prevent path traversal
-    if (name.includes("..") || name.includes("/") || name.includes("\\")) {
-      return new Response("Invalid file name", { status: 400 });
-    }
-
-    const filePath = path.join(UPLOAD_DIR, path.basename(name));
-    if (!fs.existsSync(filePath)) {
-      return new Response("File not found", { status: 404 });
-    }
-
-    const stat = await fs.promises.stat(filePath);
-    const stream = fs.createReadStream(filePath);
-
-    return new Response(stream, {
-      status: 200,
-      headers: {
-        "Content-Length": String(stat.size),
-        "Content-Disposition": `attachment; filename="${name}"`,
-      },
-    });
-  } catch (err) {
-    console.error("Download error:", err);
-    return new Response(String(err), { status: 500 });
-  }
 }

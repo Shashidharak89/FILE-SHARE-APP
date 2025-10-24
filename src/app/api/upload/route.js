@@ -5,7 +5,7 @@ import { getStoragePath } from '../../lib/storage';
 
 export async function POST(req) {
   try {
-    const UPLOAD_DIR = getStoragePath(req.headers);
+    const UPLOAD_DIR = getStoragePath();
 
     const formData = await req.formData();
     const files = formData.getAll("files");

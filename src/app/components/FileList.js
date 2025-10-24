@@ -7,23 +7,12 @@ export default function FileList() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [storagePath, setStoragePath] = useState('');
-
-  useEffect(() => {
-    // Load saved path from localStorage
-    const savedPath = localStorage.getItem('fileshare_path') || 'C:\\share';
-    setStoragePath(savedPath);
-  }, []);
 
   const fetchFiles = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/files", {
-        headers: {
-          'x-storage-path': storagePath
-        }
-      });
+      const res = await fetch("/api/files");
       if (!res.ok) throw new Error('Failed to fetch files');
       const data = await res.json();
       setFiles(data.files || []);
@@ -57,7 +46,7 @@ export default function FileList() {
       });
 
       // Make the request
-      const downloadUrl = `/api/download/${encodedName}`;
+      const downloadUrl = `/api/download?filename=${encodedName}`;
       console.log('Requesting from:', downloadUrl);
       
       const response = await fetch(downloadUrl);

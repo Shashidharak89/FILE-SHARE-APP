@@ -3,9 +3,9 @@ import fs from "fs";
 import path from "path";
 import { getStoragePath } from '../../lib/storage';
 
-export async function GET(request) {
+export async function GET() {
   try {
-    const UPLOAD_DIR = getStoragePath(request.headers);
+    const UPLOAD_DIR = getStoragePath();
     const files = fs.readdirSync(UPLOAD_DIR);
 
     // Return file names
